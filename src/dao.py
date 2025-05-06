@@ -1,25 +1,25 @@
 class history:
     
-    def __init__(self, statement, parapharsed):
+    def __init__(self, statement, paraphrased):
         self.statement = statement
-        self.parapharsed = parapharsed
+        self.paraphrased = paraphrased
 
-        self.history_parapharsed = []
+        self.history_paraphrased = []
 
     def update_statement(self, statement):
         self.statement = statement
 
-    def add_parapharsed(self, parapharsed):
-        self.history_parapharsed.append(parapharsed)
+    def add_paraphrased(self, paraphrased):
+        self.history_paraphrased.append(paraphrased)
 
 class statement:
-    def __init__(self, statement, classfication, score):
+    def __init__(self, statement, classification, score):
         self.statement = statement
-        self.classfication = classfication
+        self.classification = classification
         self.score = score
 
-class parapharsed_obj:
-    def __init__(self, paraphrased_text, classfication, score):
+class paraphrased_obj:
+    def __init__(self, paraphrased_text, classification, score):
         self.paraphrased_text = paraphrased_text
-        self.classfication = classfication
+        self.classification = classification
         self.score = score

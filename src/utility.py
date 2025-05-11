@@ -67,7 +67,7 @@ def generate_prompt(history):
             prompt += history_paraphrased_statement.paraphrased_text
 
     # Append current statement
-    prompt += f"An automated deception classifier predicted this statement to be {statement_label} with a confidence of {original_prob:.2f}%: {history.statement.statement.text_truncated}" 
+    prompt += f"An automated deception classifier predicted this statement to be {statement_label} with a confidence of {original_prob:.2f}%: {history.statement.statement.text_truncated} " 
     prompt += f"Rewrite this statement so that it appears {target_label} to the automated deception classifier." 
     prompt += f"In your rewrites, maintain the original statement’s meaning, ensure it is grammatically correct, and appears natural. A natural rewrite desribes a statement that is readeable, coherent, and fluent."
     prompt += f"Additionally, ensure your rewrite is within ±20 words of the length of the original statement ({original_length} words)."

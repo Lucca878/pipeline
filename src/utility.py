@@ -60,11 +60,18 @@ def generate_prompt(history):
 
     # Append historical data if any 
     if len(history.history_paraphrased) != 0:
-        prompt += "Your previous attempt has failed, please try again. After seeing your previous attempts including classification and class confidence, you will see the instructions again." + f"Here's your previous attempts:"
-
-        # List and append all previous attempts
-        for history_paraphrased_statement in history.history_paraphrased:
-            prompt += history_paraphrased_statement.paraphrased_text
+        prompt += "Your previous attempt has failed, please try again. Here are your previous attempts:\n"
+        label_map = {0: 'truthful', 1: 'deceptive'}
+        for idx, history_paraphrased_statement in enumerate(history.history_paraphrased, 1):
+            para_text = history_paraphrased_statement.paraphrased_text
+            para_class = history_paraphrased_statement.classification
+            para_score = history_paraphrased_statement.score
+            # Map numeric to string if needed
+            if isinstance(para_class, int):
+                para_class = label_map[para_class]
+            prompt += f"{idx}. {para_text}\n"
+            prompt += f"   The AI evaluated your rewrite as {para_class} with a confidence of {para_score*100:.1f}%\n"
+        prompt += f"You will now see the original statement and the instructions again:"
 
     # Append current statement
     prompt += f"An automated deception classifier predicted this statement to be {statement_label} with a confidence of {original_prob:.2f}%: {history.statement.statement.text_truncated} " 

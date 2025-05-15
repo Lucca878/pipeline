@@ -5,7 +5,7 @@ import time
 import datetime
 
 # Total amount of statements that need to be tested
-total_statement_count = 10
+total_statement_count = 3
 
 # How many times each statement will be tested maximum
 max_statement_iteration = 10
@@ -15,6 +15,7 @@ timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%
 # Reset statement count from test case to 0
 reset_statement_count()
 init_data_csv(timestamp)
+
 
 for current_statement_index in range(0, total_statement_count):
 
@@ -46,9 +47,11 @@ for current_statement_index in range(0, total_statement_count):
         # If the label is flipped, go to the next statement
         # 1 = false
         # 0 = true
-        if classification == 1 and current_statement.condition == 'truthful':
+        original_label = current_history.statement.classification
+        if classification == 1 and original_label == 0:
             break
-        if classification == 0 and current_statement.condition == 'deceptive':
+        if classification == 0 and original_label == 1:
             break
+        
 
 

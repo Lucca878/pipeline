@@ -5,7 +5,7 @@ import time
 import datetime
 
 # Total amount of statements that need to be tested
-total_statement_count = 3
+total_statement_count = 5
 
 # How many times each statement will be tested maximum
 max_statement_iteration = 10

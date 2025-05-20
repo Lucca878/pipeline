@@ -42,42 +42,53 @@ def reset_statement_count():
         
 
 def generate_prompt(history):
-    prompt = ""
+    label_map = {0: 'truthful', 1: 'deceptive'}
 
     original_label = history.statement.classification
     original_prob = history.statement.score
-    original_length = len(history.statement.statement.text_truncated.split())
+    original_length = len(history.statement.statement['text_truncated'].split())
+    original_text = history.statement.statement['text_truncated']
 
-    if original_label == 1:
-        target_label = 'truthful'
+    # Map numeric to string if needed
+    if isinstance(original_label, int):
+        statement_label = label_map[original_label]
+        target_label = label_map[1 - original_label]
     else:
-        target_label = 'deceptive'
+        statement_label = original_label
+        target_label = 'truthful' if original_label == 'deceptive' else 'deceptive'
 
-    if original_label == 1:
-        statement_label = 'deceptive'
-    else:
-        statement_label = 'truthful'
+    prompt = (
+        "Your task is to rewrite a statement so that a machine learning model changes its prediction.\n"
+        "You will see the original statement (taken from a previous study on truthful or deceptive autobiographical statements), "
+        "the prediction of a machine learning model (whether the predicted label is truthful or deceptive) and the prediction confidence "
+        "(i.e., the class probabilities of the statement belonging to the predicted class).\n"
+        "You will also see any previous attempts (if there are any, as well as the prediction that resulted from these).\n"
+        f"Original statement: {original_text}\n"
+        f"Machine learning prediction (original statement): {statement_label}\n"
+        f"Prediction confidence (original statement): {original_prob*100:.0f}%\n"
+    )
 
-    # Append historical data if any 
-    if len(history.history_paraphrased) != 0:
-        prompt += "Your previous attempt has failed, please try again. Here are your previous attempts:\n"
-        label_map = {0: 'truthful', 1: 'deceptive'}
+    # Add previous attempts if any
+    if len(history.history_paraphrased) > 0:
+        prompt += f"\nPrevious attempts: {len(history.history_paraphrased)}\n"
         for idx, history_paraphrased_statement in enumerate(history.history_paraphrased, 1):
             para_text = history_paraphrased_statement.paraphrased_text
             para_class = history_paraphrased_statement.classification
             para_score = history_paraphrased_statement.score
-            # Map numeric to string if needed
             if isinstance(para_class, int):
                 para_class = label_map[para_class]
-            prompt += f"{idx}. {para_text}\n"
-            prompt += f"   The AI evaluated your rewrite as {para_class} with a confidence of {para_score*100:.1f}%\n"
-        prompt += f"You will now see the original statement and the instructions again:"
-
-    # Append current statement
-    prompt += f"An automated deception classifier predicted this statement to be {statement_label} with a confidence of {original_prob:.2f}%: {history.statement.statement.text_truncated} " 
-    prompt += f"Rewrite this statement so that it appears {target_label} to the automated deception classifier." 
-    prompt += f"In your rewrites, maintain the original statement’s meaning, ensure it is grammatically correct, and appears natural. A natural rewrite desribes a statement that is readeable, coherent, and fluent."
-    prompt += f"Additionally, ensure your rewrite is within ±20 words of the length of the original statement ({original_length} words)."
+            prompt += (
+                f"\nStatement after attempt {idx}: {para_text}\n"
+                f"Machine learning prediction (after attempt {idx}): {para_class}\n"
+                f"Prediction confidence (after attempt {idx}): {para_score*100:.0f}%\n"
+            )
+    prompt += (
+        f"\nNow rewrite the original statement (taking into account any previous attempts listed above) so that it appears more {target_label} to the machine learning classifier. "
+        "Maintain the original statement’s meaning, ensure it is grammatically correct, and appears natural (i.e., that it is readable, coherent, and fluent). "
+        f"Ensure that version is within ±20 words of the length of the original statement ({original_length} words).\n"
+        "Your modification:"
+    )
+        
 
     return prompt
 
